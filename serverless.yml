@@ -32,6 +32,7 @@ provider:
   stage: ${opt:stage, self:custom.defaultStage}
 
   environment:
+    AWS_REGION: ${self.provider.region}
     FAD_TABLE_NAME: ${self:custom.fadTableName}
     MANIFEST_LOCATION: ${self:custom.manifestLocation}
     MANIFEST_SITE: ${self:custom.manifestSite}
