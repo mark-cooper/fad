@@ -1,0 +1,94 @@
+service: fad
+
+frameworkVersion: ">=1.27.3 <2.0.0"
+
+custom:
+  defaultStage: dev
+  fadTableName: ${self:service}-${self:provider.stage}-${self:custom.manifestSite}
+  fadTableArn:
+    Fn::Join:
+    - ":"
+    - - arn
+      - aws
+      - dynamodb
+      - Ref: AWS::Region
+      - Ref: AWS::AccountId
+      - table/${self:custom.fadTableName}
+  manifestLocation: ${file(${opt:config}):location}
+  manifestSite: ${file(${opt:config}):site}
+  custom:
+    pythonRequirements:
+      dockerizePip: non-linux
+
+plugins:
+  - serverless-python-requirements
+
+provider:
+  name: aws
+  region: us-west-2
+  runtime: python3.6
+  memorySize: 256
+  timeout: 300
+  stage: ${opt:stage, self:custom.defaultStage}
+
+  environment:
+    FAD_TABLE_NAME: ${self:custom.fadTableName}
+    MANIFEST_LOCATION: ${self:custom.manifestLocation}
+    MANIFEST_SITE: ${self:custom.manifestSite}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - ${self:custom.fadTableArn}
+
+package:
+  exclude:
+    - node_modules/**
+    - venv/**
+
+functions:
+  process:
+    name: ${self:custom.fadTableName}-process
+    handler: manifest/process.handler
+    # events:
+    #   - schedule:
+    #       rate: rate(10 minutes)
+    #       enabled: false
+    #       input:
+    #         key1: value1
+    #         key2: value2
+    #         stageParams:
+    #           stage: dev
+  api:
+    name: ${self:custom.fadTableName}-api
+    handler: manifest/api.handler
+    # events:
+    #   - http:
+    #       path: hello
+    #       method: get
+
+resources:
+  Resources:
+    FadTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.fadTableName}
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        AttributeDefinitions:
+          - AttributeName: Location
+            AttributeType: S
+          - AttributeName: UpdatedAt
+            AttributeType: N
+        KeySchema:
+          - AttributeName: Location
+            KeyType: HASH
+          - AttributeName: UpdatedAt
+            KeyType: RANGE
