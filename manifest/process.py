@@ -7,6 +7,12 @@ import tempfile
 import time
 
 
+from pynamodb.models import Model
+from pynamodb.attributes import (
+    BooleanAttribute, NumberAttribute, UnicodeAttribute
+)
+
+
 class Manifest:
     def __init__(self, name, url):
         self.name = name
@@ -26,7 +32,7 @@ class Manifest:
 
     def make_resource(self, row):
         # TODO: handle errors
-        resource = Resource()
+        resource = ResourceModel()
         resource.site = self.name
         resource.url = row['location']
 
@@ -59,8 +65,16 @@ class Manifest:
                 yield resource
 
 
-class Resource:
-    pass
+class ResourceModel(Model):
+    class Meta:
+        table_name = os.getenv('FAD_TABLE_NAME', 'fad')
+        region = os.getenv('AWS_REGION', 'us-west-2')
+    site = UnicodeAttribute()
+    url = UnicodeAttribute(hash_key=True)
+    deleted = BooleanAttribute()
+    filename = UnicodeAttribute()
+    title = UnicodeAttribute()
+    updated_at = NumberAttribute(range_key=True)
 
 
 def handler(event, context):
@@ -85,4 +99,4 @@ if __name__ == '__main__':
         data = json.load(json_data)
 
     for resource in process(data['site'], data['location']):
-        print(resource.title)
+        print(json.dumps(resource.__dict__))
