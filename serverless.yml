@@ -16,23 +16,22 @@ custom:
       - table/${self:custom.fadTableName}
   manifestLocation: ${file(${opt:config}):location}
   manifestSite: ${file(${opt:config}):site}
-  custom:
-    pythonRequirements:
-      dockerizePip: non-linux
+  pythonRequirements:
+    dockerizePip: non-linux
+  region: ${file(${opt:config}):region}
 
 plugins:
   - serverless-python-requirements
 
 provider:
   name: aws
-  region: us-west-2
+  region: ${opt:region, self:custom.region}
   runtime: python3.6
   memorySize: 256
   timeout: 300
   stage: ${opt:stage, self:custom.defaultStage}
 
   environment:
-    AWS_REGION: ${self.provider.region}
     FAD_TABLE_NAME: ${self:custom.fadTableName}
     MANIFEST_LOCATION: ${self:custom.manifestLocation}
     MANIFEST_SITE: ${self:custom.manifestSite}
