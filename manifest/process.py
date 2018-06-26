@@ -32,7 +32,7 @@ class Manifest:
 
     def make_resource(self, row):
         # TODO: handle errors
-        resource = ResourceModel()
+        resource = Resource()
         resource.site = self.name
         resource.url = row['location']
 
@@ -65,10 +65,10 @@ class Manifest:
                 yield resource
 
 
-class ResourceModel(Model):
+class Resource(Model):
     class Meta:
         table_name = os.getenv('FAD_TABLE_NAME', 'fad')
-        region = os.getenv('AWS_REGION', 'us-west-2')
+        region = os.getenv('AWS_REGION')
     site = UnicodeAttribute()
     url = UnicodeAttribute(hash_key=True)
     deleted = BooleanAttribute()
@@ -80,14 +80,50 @@ class ResourceModel(Model):
 def handler(event, context):
     site = os.getenv('MANIFEST_SITE')
     location = os.getenv('MANIFEST_LOCATION')
+    created = 0
+    updated = 0
+
     for resource in process(site, location):
-        print(json.dumps(resource.__dict__))
+        count = Resource.count(resource.url)
+        if count > 1:
+            raise Exception('Duplicate url detected: ' + resource.url)
+
+        if count == 0:
+            resource.save()
+            logging.info('Created: ' + resource.url)
+            created += 1
+            continue
+
+        for r in Resource.query(resource.url, limit=1):
+            changed = False
+            if resource.deleted != r.deleted:
+                changed = True
+                r.update(actions=[
+                    Resource.deleted.set(resource.deleted),
+                    Resource.updated_at.set(time.time()),
+                ])
+
+            if resource.updated_at > r.updated_at:
+                changed = True
+                r.update(actions=[
+                    Resource.updated_at.set(resource.updated_at),
+                ])
+
+            if changed:
+                logging.info('Updated: ' + resource.url)
+                updated += 1
+
+    return {
+        'message': 'ok',
+        'created': created,
+        'updated': updated,
+    }
 
 
 def process(site, location):
     mf = Manifest(site, location)
     if mf.download():
-        print('Downloaded manifest: ' + mf.file)
+        logging.info('Downloaded manifest: ' + mf.file)
 
     return mf.process()
 
