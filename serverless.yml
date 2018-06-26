@@ -83,12 +83,12 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         AttributeDefinitions:
-          - AttributeName: Location
+          - AttributeName: url
             AttributeType: S
-          - AttributeName: UpdatedAt
+          - AttributeName: updated_at
             AttributeType: N
         KeySchema:
-          - AttributeName: Location
+          - AttributeName: url
             KeyType: HASH
-          - AttributeName: UpdatedAt
+          - AttributeName: updated_at
             KeyType: RANGE
