@@ -95,24 +95,17 @@ def handler(event, context):
     updated = 0
 
     for resource in process(site, location):
-        create = False
-        count = Resource.count(resource.site, Resource.url == resource.url)
-
-        if count > 1:
-            raise Exception('Duplicate url detected: ' + resource.url)
-
-        if count == 1:
-            for r in Resource.query(resource.url, limit=1):
-                if resoure_updated(r, resource):
-                    r.delete()
-                    create = True
-                    updated += 1
-
-        if count == 0:
-            create = True
+        save = False
+        try:
+            r = Resource.get(resource.site, resource.url)
+            if resource_updated(r, resource):
+                save = True
+                updated += 1
+        except Resource.DoesNotExist:
+            save = True
             created += 1
 
-        if create:
+        if save:
             resource.save()
             logging.info('Processed: ' + resource.url)
 
@@ -131,7 +124,7 @@ def process(site, location):
     return mf.process()
 
 
-def resoure_updated(old, new):
+def resource_updated(old, new):
     return new.deleted != old.deleted or new.updated_at > old.updated_at
 
 
