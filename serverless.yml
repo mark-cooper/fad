@@ -4,7 +4,7 @@ frameworkVersion: ">=1.27.3 <2.0.0"
 
 custom:
   defaultStage: dev
-  fadTableName: ${self:service}-${self:provider.stage}-${self:custom.manifestSite}
+  fadTableName: ${self:service}-${self:provider.stage}
   fadTableArn:
     Fn::Join:
     - ":"
@@ -14,11 +14,9 @@ custom:
       - Ref: AWS::Region
       - Ref: AWS::AccountId
       - table/${self:custom.fadTableName}
-  manifestLocation: ${file(${opt:config}):location}
-  manifestSite: ${file(${opt:config}):site}
   pythonRequirements:
     dockerizePip: non-linux
-  region: ${file(${opt:config}):region}
+  region: us-west-2
 
 plugins:
   - serverless-python-requirements
@@ -33,8 +31,6 @@ provider:
 
   environment:
     FAD_TABLE_NAME: ${self:custom.fadTableName}
-    MANIFEST_LOCATION: ${self:custom.manifestLocation}
-    MANIFEST_SITE: ${self:custom.manifestSite}
 
   iamRoleStatements:
     - Effect: Allow
@@ -58,15 +54,7 @@ functions:
   process:
     name: ${self:custom.fadTableName}-process
     handler: manifest/process.handler
-    # events:
-    #   - schedule:
-    #       rate: rate(10 minutes)
-    #       enabled: false
-    #       input:
-    #         key1: value1
-    #         key2: value2
-    #         stageParams:
-    #           stage: dev
+    events: ${file(./config/${self:provider.stage}.yml):fad}
   api:
     name: ${self:custom.fadTableName}-api
     handler: manifest/api.handler

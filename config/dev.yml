@@ -1,0 +1,7 @@
+fad:
+  - schedule:
+    rate: "cron(0 * * * ? *)"
+    enabled: true
+    input:
+      site: demo
+      location: https://archivesspace.lyrasistechnology.org/files/exports/manifest_ead_xml.csv
