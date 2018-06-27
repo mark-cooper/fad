@@ -3,7 +3,6 @@ service: fad
 frameworkVersion: ">=1.27.3 <2.0.0"
 
 custom:
-  defaultStage: dev
   fadTableName: ${self:service}-${self:provider.stage}
   fadTableArn:
     Fn::Join:
@@ -16,18 +15,18 @@ custom:
       - table/${self:custom.fadTableName}
   pythonRequirements:
     dockerizePip: non-linux
-  region: us-west-2
 
 plugins:
   - serverless-python-requirements
 
+# --stage prod --region us-east-2
 provider:
+  memorySize: 128
   name: aws
-  region: ${opt:region, self:custom.region}
+  region: us-west-2
   runtime: python3.6
-  memorySize: 256
+  stage: dev
   timeout: 300
-  stage: ${opt:stage, self:custom.defaultStage}
 
   environment:
     FAD_TABLE_NAME: ${self:custom.fadTableName}
