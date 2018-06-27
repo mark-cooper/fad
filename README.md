@@ -8,19 +8,10 @@ A FAD deployment creates a [DynamoDB](#) table and functions for a single site.
 Each site is associated with a manifest: a list of EAD resources and where to
 access them online (optionally protected by HTTP basic auth).
 
-Each FAD deployment requires a simple `json` configuration file:
+## Config
 
-```
-{
-  "location": "https://domain/path/to/manifest.csv",
-  "region": "us-west-2",
-  "site": "uniquesitecode"
-}
-```
-
-- location: url to manifest csv
-- region: AWS region for function deployment
 - site: a unique site code
+- location: url to manifest csv
 - username: basic auth username [optional]
 - password: basic auth password [optional]
 
@@ -52,17 +43,17 @@ Serverless:
 
 ```bash
 export AWS_PROFILE=default # # set aws profile if using env
-export FAD_CONFIG=./test/demo.json
+export TDATA=./test/demo.json
 
-sls plugin install -n serverless-python-requirements --config=$FAD_CONFIG
+sls plugin install -n serverless-python-requirements
 
 # TODO: setup DDB local
-sls invoke local --function -f process --config=$FAD_CONFIG
-sls invoke local --function -f api --config=$FAD_CONFIG
+sls invoke local --function -f process -p $TDATA
+sls invoke local --function -f api -p $TDATA
 
-sls deploy --config=$FAD_CONFIG
-sls invoke -f process -l --config=$FAD_CONFIG
-sls invoke -f api -l --config=$FAD_CONFIG
-sls remove --config=$FAD_CONFIG
+sls deploy
+sls invoke -f process -l -p $TDATA
+sls invoke -f api -l -p $TDATA
+sls remove
 unset $AWS_PROFILE
 ```
