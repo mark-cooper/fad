@@ -2,6 +2,7 @@
 .Python
 env/
 build/
+config/prod.*
 develop-eggs/
 dist/
 downloads/
