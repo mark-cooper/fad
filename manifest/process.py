@@ -89,8 +89,8 @@ class Resource(Model):
 
 
 def handler(event, context):
-    site = os.getenv('MANIFEST_SITE')
-    location = os.getenv('MANIFEST_LOCATION')
+    site = event['site']
+    location = event['location']
     created = 0
     updated = 0
 
