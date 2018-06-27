@@ -13,6 +13,9 @@ from pynamodb.attributes import (
     BooleanAttribute, NumberAttribute, UnicodeAttribute
 )
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 
 class Manifest:
     def __init__(self, name, url):
@@ -26,7 +29,6 @@ class Manifest:
         if response.ok:
             with open(self.file, 'wb') as f:
                 f.write(response.content)
-            logging.info('Downloaded and saved manifest: ' + self.file)
             return True
         else:
             raise Exception('Failed to download manifest: ' + self.url)
@@ -62,7 +64,6 @@ class Manifest:
             reader = csv.DictReader(csvfile, quotechar='"')
             for row in reader:
                 resource = self.make_resource(row)
-                logging.info('Processing resource: ' + resource.url)
                 yield resource
 
 
@@ -107,19 +108,22 @@ def handler(event, context):
 
         if save:
             resource.save()
-            logging.info('Processed: ' + resource.url)
 
-    return {
+    status = {
+        'site': site,
         'message': 'ok',
         'created': created,
         'updated': updated,
     }
+    logger.info(json.dumps(status))
+
+    return status
 
 
 def process(site, location):
     mf = Manifest(site, location)
     if mf.download():
-        logging.info('Downloaded manifest: ' + mf.file)
+        pass
 
     return mf.process()
 
