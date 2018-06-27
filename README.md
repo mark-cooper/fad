@@ -1,10 +1,10 @@
 # FAD
 
-Finding Aid Depository [AWS Lambda](#) functions.
+Finding Aid Depository [AWS Lambda](https://aws.amazon.com/lambda/) functions.
 
 ## Overview
 
-A FAD deployment creates a [DynamoDB](#) table and functions to process
+A FAD deployment creates a [DynamoDB](https://aws.amazon.com/dynamodb/) table and functions to process
 manifests and provide access to resources.
 
 A manifest is a list of EAD resources and where to find them online.
