@@ -26,6 +26,10 @@ Check status of resources.
 
 HTTP/s endpoint for accessing resource/s metadata.
 
+### Backup
+
+Backup the FAD database.
+
 ## Quickstart
 
 To get up and running with the dev environment:
@@ -44,7 +48,9 @@ sls plugin install -n serverless-python-requirements
 
 sls deploy
 sls invoke -f process -l -p $TDATA
+sls invoke -f check -l -p $TDATA
 sls invoke -f api -l
+sls invoke -f backup -l
 sls remove
 unset $AWS_PROFILE
 ```

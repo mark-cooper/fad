@@ -34,13 +34,14 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
+        - dynamodb:CreateBackup
+        - dynamodb:DeleteItem
         - dynamodb:DescribeTable
-        - dynamodb:Query
-        - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
+        - dynamodb:Query
+        - dynamodb:Scan
         - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
       Resource:
         - ${self:custom.fadTableArn}
 
@@ -54,6 +55,9 @@ functions:
     name: ${self:custom.fadTableName}-process
     handler: manifest/process.handler
     events: ${file(./config/${self:provider.stage}.yml):fad}
+  # check:
+  #   name: ${self:custom.fadTableName}-check
+  #   handler: manifest/check.handler
   api:
     name: ${self:custom.fadTableName}-api
     handler: manifest/api.handler
@@ -61,6 +65,13 @@ functions:
     #   - http:
     #       path: hello
     #       method: get
+  backup:
+    name: ${self:custom.fadTableName}-backup
+    handler: manifest/backup.handler
+    events:
+      - schedule:
+          rate: cron(0 6 * * ? *)
+          enabled: true
 
 resources:
   Resources:
