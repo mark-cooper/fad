@@ -4,18 +4,15 @@ Finding Aid Depository [AWS Lambda](#) functions.
 
 ## Overview
 
-A FAD deployment creates a [DynamoDB](#) table and functions for a single site.
-Each site is associated with a manifest: a list of EAD resources and where to
-access them online (optionally protected by HTTP basic auth).
+A FAD deployment creates a [DynamoDB](#) table and functions to process
+manifests and provide access to resources.
 
-## Config
+A manifest is a list of EAD resources and where to find them online.
 
-- site: a unique site code
-- location: url to manifest csv
-- username: basic auth username [optional]
-- password: basic auth password [optional]
+A resource is metadata referring to an EAD file that is publicly available or
+optionally protected by HTTP basic auth.
 
-## Functions
+The functions are:
 
 ### Process
 
@@ -29,31 +26,47 @@ Check status of resources.
 
 HTTP/s endpoint for accessing resource/s metadata.
 
-## Setup
+## Quickstart
 
-Python:
+To get up and running with the dev environment:
 
 ```bash
+# PYTHON
 virtualenv venv --python=python3
 source venv/bin/activate
 pip3 install -r requirements.txt
-```
 
-Serverless:
-
-```bash
+# SERVERLESS
 export AWS_PROFILE=default # # set aws profile if using env
 export TDATA=./test/demo.json
 
 sls plugin install -n serverless-python-requirements
 
-# TODO: setup DDB local
-sls invoke local --function -f process -p $TDATA
-sls invoke local --function -f api -p $TDATA
-
 sls deploy
 sls invoke -f process -l -p $TDATA
-sls invoke -f api -l -p $TDATA
+sls invoke -f api -l
 sls remove
 unset $AWS_PROFILE
+```
+
+## Config
+
+Create a `config/$env.yml` (derive from `dev.yml` for an example):
+
+```yml
+fad:
+  - schedule:
+      rate: cron(0 6 * * ? *) # every day, 6 am UTC
+      enabled: true # false to disable
+      input:
+        # REQUIRED: site code
+        site: demo
+        # REQUIRED: location (url) to manifest
+        location: https://archivesspace.lyrasistechnology.org/files/exports/manifest_ead_xml.csv
+        # OPTIONAL: basic auth username
+        username: abc
+        # OPTIONAL: basic auth password
+        password: abc123
+  - schedule:
+      # ...
 ```
