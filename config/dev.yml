@@ -1,7 +1,7 @@
 fad:
   - schedule:
-      # every hour
-      rate: cron(0 * * * ? *)
+      # every minute (dev only!)
+      rate: cron(* * * * ? *)
       enabled: true
       input:
         site: demo
