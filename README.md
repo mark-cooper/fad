@@ -60,7 +60,7 @@ unset $AWS_PROFILE
 Create a `config/$env.yml` (derive from `dev.yml` for an example):
 
 ```yml
-fad:
+process:
   - schedule:
       rate: cron(0 6 * * ? *) # every day, 6 am UTC
       enabled: true # false to disable

@@ -54,7 +54,7 @@ functions:
   process:
     name: ${self:custom.fadTableName}-process
     handler: manifest/process.handler
-    events: ${file(./config/${self:provider.stage}.yml):fad}
+    events: ${file(./config/${self:provider.stage}.yml):process}
   # check:
   #   name: ${self:custom.fadTableName}-check
   #   handler: manifest/check.handler

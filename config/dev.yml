@@ -1,4 +1,4 @@
-fad:
+process:
   - schedule:
       # every minute (dev only!)
       rate: cron(* * * * ? *)
