@@ -84,34 +84,26 @@ def handler(event, context):
     updated = 0
 
     for resource in process(site, location):
+        create = False
         count = Resource.count(resource.url)
+
         if count > 1:
             raise Exception('Duplicate url detected: ' + resource.url)
 
+        if count == 1:
+            for r in Resource.query(resource.url, limit=1):
+                if resoure_updated(r, resource):
+                    r.delete()
+                    create = True
+                    updated += 1
+
         if count == 0:
-            resource.save()
-            logging.info('Created: ' + resource.url)
+            create = True
             created += 1
-            continue
 
-        for r in Resource.query(resource.url, limit=1):
-            changed = False
-            if resource.deleted != r.deleted:
-                changed = True
-                r.update(actions=[
-                    Resource.deleted.set(resource.deleted),
-                    Resource.updated_at.set(time.time()),
-                ])
-
-            if resource.updated_at > r.updated_at:
-                changed = True
-                r.update(actions=[
-                    Resource.updated_at.set(resource.updated_at),
-                ])
-
-            if changed:
-                logging.info('Updated: ' + resource.url)
-                updated += 1
+        if create:
+            resource.save()
+            logging.info('Processed: ' + resource.url)
 
     return {
         'message': 'ok',
@@ -126,6 +118,10 @@ def process(site, location):
         logging.info('Downloaded manifest: ' + mf.file)
 
     return mf.process()
+
+
+def resoure_updated(old, new):
+    return new.deleted != old.deleted or new.updated_at > old.updated_at
 
 
 if __name__ == '__main__':
