@@ -38,7 +38,3 @@ def create_backup(table):
         BackupName=backup
     )
     return backup
-
-
-if __name__ == '__main__':
-    handler('', '')
