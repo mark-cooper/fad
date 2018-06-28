@@ -7,8 +7,6 @@ from pynamodb.attributes import (
 )
 
 
-# for r in Resource.updated_at_idx.query(site, Resouce.updated_at > timestamp):
-#     print("Resource queried from index: {0}".format(r.url))
 class ResourceUpdatedAtIndex(LocalSecondaryIndex):
     class Meta:
         projection = AllProjection()

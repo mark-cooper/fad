@@ -13,6 +13,16 @@ custom:
       - Ref: AWS::Region
       - Ref: AWS::AccountId
       - table/${self:custom.fadTableName}
+  fadTableIndexName: updated_at_idx
+  fadTableIndexArn:
+    Fn::Join:
+    - ":"
+    - - arn
+      - aws
+      - dynamodb
+      - Ref: AWS::Region
+      - Ref: AWS::AccountId
+      - table/${self:custom.fadTableName}/index/*
   pythonRequirements:
     dockerizePip: non-linux
 
@@ -44,6 +54,7 @@ provider:
         - dynamodb:UpdateItem
       Resource:
         - ${self:custom.fadTableArn}
+        - ${self:custom.fadTableIndexArn}
 
 package:
   exclude:
@@ -61,10 +72,15 @@ functions:
   api:
     name: ${self:custom.fadTableName}-api
     handler: manifest/api.handler
-    # events:
-    #   - http:
-    #       path: hello
-    #       method: get
+    cors: true
+    events:
+      - http:
+          path: "{site}/resources"
+          method: get
+          request:
+            parameters:
+              paths:
+                site: true
   backup:
     name: ${self:custom.fadTableName}-backup
     handler: manifest/backup.handler
@@ -95,7 +111,7 @@ resources:
           - AttributeName: url
             KeyType: RANGE
         LocalSecondaryIndexes:
-          - IndexName: updated_at_index
+          - IndexName: ${self:custom.fadTableIndexName}
             KeySchema:
               - AttributeName: site
                 KeyType: HASH

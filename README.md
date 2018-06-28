@@ -49,8 +49,10 @@ sls plugin install -n serverless-python-requirements
 sls deploy
 sls invoke -f process -l -p $TDATA
 sls invoke -f check -l -p $TDATA
-sls invoke -f api -l
+sls invoke -f api -l -d '{ "path": "/dev/demo/resources", "pathParameters": { "site": "demo" }, "queryStringParameters": { "since": 0 } }'
 sls invoke -f backup -l
+
+curl https://$id.execute-api.us-west-2.amazonaws.com/dev/demo/resources?since=0 | jq .
 
 sls logs -f process -l
 sls remove
