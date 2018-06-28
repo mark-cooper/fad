@@ -41,7 +41,7 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 
 # SERVERLESS
-export AWS_PROFILE=default # # set aws profile if using env
+export AWS_PROFILE=default # set aws profile if using env, or use --aws-profile
 export TDATA=./test/demo.json
 
 sls plugin install -n serverless-python-requirements
