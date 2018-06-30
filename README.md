@@ -1,5 +1,7 @@
 # FAD
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
+
 Finding Aid Depository [AWS Lambda](https://aws.amazon.com/lambda/) functions.
 
 ## Overview
@@ -81,3 +83,7 @@ process:
   - schedule:
       # ...
 ```
+
+## License
+
+The project is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
