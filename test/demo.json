@@ -1,4 +1,6 @@
 {
   "site": "demo",
-  "location": "https://archivesspace.lyrasistechnology.org/files/exports/manifest_ead_xml.csv"
+  "location": "https://archivesspace.lyrasistechnology.org/files/exports/manifest_ead_xml.csv",
+  "username": "demo-files",
+  "password": "9b5e2d96496e248aMc"
 }

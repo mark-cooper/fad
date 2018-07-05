@@ -11,10 +11,12 @@ logger.setLevel(logging.INFO)
 def handler(event, context):
     site = event['site']
     location = event['location']
+    username = event.get('username', '')
+    password = event.get('password', '')
     created = 0
     updated = 0
 
-    for resource in process(site, location):
+    for resource in process(site, location, username, password):
         save = False
         try:
             r = Resource.get(resource.site, resource.url)
@@ -39,8 +41,8 @@ def handler(event, context):
     return status
 
 
-def process(site, location):
-    mf = Manifest(site, location)
+def process(site, location, username, password):
+    mf = Manifest(site, location, username, password)
     if mf.download():
         pass
 

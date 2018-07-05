@@ -8,14 +8,16 @@ from manifest.resource import Resource
 
 
 class Manifest:
-    def __init__(self, name, url):
+    def __init__(self, name, url, username='', password=''):
         self.name = name
         self.url = url
         self.file = os.path.join(tempfile.gettempdir(), 'manifest.csv')
         self.date_format = '%Y-%m-%d %H:%M:%S %Z'
+        self.username = username
+        self.password = password
 
     def download(self):
-        response = requests.get(self.url)
+        response = requests.get(self.url, auth=(self.username, self.password))
         if response.ok:
             with open(self.file, 'wb') as f:
                 f.write(response.content)
@@ -39,7 +41,9 @@ class Manifest:
                 time.strptime(row['updated_at'], self.date_format)
             )
         else:
-            response = requests.head(resource.url)
+            response = requests.head(
+                resource.url, auth=(self.username, self.password)
+            )
             if response.ok:
                 last_modified = response.headers['Last-Modified']
                 resource.updated_at = time.mktime(

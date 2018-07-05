@@ -1,8 +1,10 @@
 process:
   - schedule:
-      # every minute (dev only!)
-      rate: cron(* * * * ? *)
+      # every hour (dev only!)
+      rate: cron(0 * * * ? *)
       enabled: true
       input:
         site: demo
         location: https://archivesspace.lyrasistechnology.org/files/exports/manifest_ead_xml.csv
+        username: demo-files
+        password: 9b5e2d96496e248aMc
