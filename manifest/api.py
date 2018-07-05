@@ -9,7 +9,7 @@ def handler(event, context):
     results = []
 
     for r in Resource.updated_at_idx.query(site, Resource.updated_at > ts):
-        results.append(r.url)
+        results.append({'url': r.url, 'deleted': r.deleted})
 
     return {
         'statusCode': 200,
