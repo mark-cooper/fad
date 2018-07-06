@@ -50,12 +50,14 @@ export TDATA=./test/demo.json
 sls plugin install -n serverless-python-requirements
 
 sls deploy
-sls invoke -f process -l -p $TDATA
-sls invoke -f check -l -p $TDATA
-sls invoke -f api -l -d '{ "path": "/dev/demo/resources", "pathParameters": { "site": "demo" }, "queryStringParameters": { "since": 0 } }'
 sls invoke -f backup -l
+sls invoke -f process -l -p $TDATA
 
-curl https://$id.execute-api.us-west-2.amazonaws.com/dev/demo/resources?since=0 | jq .
+sls invoke -f list -l -d '{ "path": "/dev/demo/resources", "pathParameters": { "site": "demo" }, "queryStringParameters": { "since": 0 } }'
+sls invoke -f find -l -d '{ "path": "/dev/demo/resources/find", "pathParameters": { "site": "demo" }, "queryStringParameters": { "url": "https://archivesspace.lyrasistechnology.org/files/exports/LYRASIS_OCONNOR_200.xml" } }'
+
+curl --header "x-api-key: $KEY" https://$id.execute-api.us-west-2.amazonaws.com/dev/demo/resources?since=0 | jq .
+curl --header "x-api-key: $KEY" 'https://$id.execute-api.us-west-2.amazonaws.com/dev/demo/resources/find?url=$URL'
 
 sls logs -f process -l
 sls remove

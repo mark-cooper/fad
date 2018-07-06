@@ -3,6 +3,15 @@ service: fad
 frameworkVersion: ">=1.27.3 <2.0.0"
 
 custom:
+  fadParamArn:
+    Fn::Join:
+    - ":"
+    - - arn
+      - aws
+      - ssm
+      - Ref: AWS::Region
+      - Ref: AWS::AccountId
+      - parameter/fad_*
   fadTableName: ${self:service}-${self:provider.stage}
   fadTableArn:
     Fn::Join:
@@ -23,6 +32,7 @@ custom:
       - Ref: AWS::Region
       - Ref: AWS::AccountId
       - table/${self:custom.fadTableName}/index/*
+  fadSecretKeyName: ${self:custom.fadTableName}-key
   pythonRequirements:
     dockerizePip: non-linux
 
@@ -37,6 +47,8 @@ provider:
   runtime: python3.6
   stage: dev
   timeout: 300
+  apiKeys:
+    - ${self:custom.fadSecretKeyName}
 
   environment:
     FAD_TABLE_NAME: ${self:custom.fadTableName}
@@ -55,6 +67,11 @@ provider:
       Resource:
         - ${self:custom.fadTableArn}
         - ${self:custom.fadTableIndexArn}
+    - Effect: Allow
+      Action:
+        - ssm:GetParameter
+      Resource:
+        - ${self:custom.fadParamArn}
 
 package:
   exclude:
@@ -62,25 +79,7 @@ package:
     - venv/**
 
 functions:
-  process:
-    name: ${self:custom.fadTableName}-process
-    handler: manifest/process.handler
-    events: ${file(./config/${self:provider.stage}.yml):process}
-  # check:
-  #   name: ${self:custom.fadTableName}-check
-  #   handler: manifest/check.handler
-  api:
-    name: ${self:custom.fadTableName}-api
-    handler: manifest/api.handler
-    cors: true
-    events:
-      - http:
-          path: "{site}/resources"
-          method: get
-          request:
-            parameters:
-              paths:
-                site: true
+  # backup db table
   backup:
     name: ${self:custom.fadTableName}-backup
     handler: manifest/backup.handler
@@ -88,6 +87,43 @@ functions:
       - schedule:
           rate: cron(0 6 * * ? *)
           enabled: true
+  # find single record by url
+  find:
+    name: ${self:custom.fadTableName}-find
+    handler: manifest/find.handler
+    cors: true
+    events:
+      - http:
+          path: "{site}/resources/find"
+          method: get
+          private: true
+          request:
+            parameters:
+              paths:
+                site: true
+              querystrings:
+                url: true
+  # list all records updated since timestamp
+  list:
+    name: ${self:custom.fadTableName}-list
+    handler: manifest/list.handler
+    cors: true
+    events:
+      - http:
+          path: "{site}/resources"
+          method: get
+          private: true
+          request:
+            parameters:
+              paths:
+                site: true
+              querystrings:
+                since: true
+  # process manifest csv
+  process:
+    name: ${self:custom.fadTableName}-process
+    handler: manifest/process.handler
+    events: ${file(./config/${self:provider.stage}.yml):process}
 
 resources:
   Resources:
