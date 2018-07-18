@@ -4,6 +4,7 @@ import requests
 import tempfile
 import time
 
+from dateutil import parser
 from manifest.resource import Resource
 
 
@@ -12,7 +13,6 @@ class Manifest:
         self.name = name
         self.url = url
         self.file = os.path.join(tempfile.gettempdir(), 'manifest.csv')
-        self.date_format = '%Y-%m-%d %H:%M:%S %Z'
         self.username = username
         self.password = password
 
@@ -37,21 +37,20 @@ class Manifest:
         resource.title = row.get('title', '')
 
         if 'updated_at' in row:
-            resource.updated_at = time.mktime(
-                time.strptime(row['updated_at'], self.date_format)
-            )
+            resource.updated_at = self.parse_date(row["updated_at"])
         else:
             response = requests.head(
                 resource.url, auth=(self.username, self.password)
             )
             if response.ok:
                 last_modified = response.headers['Last-Modified']
-                resource.updated_at = time.mktime(
-                    time.strptime(last_modified, self.date_format)
-                )
+                resource.updated_at = self.parse_date(last_modified)
             else:
-                resource.updated_at = time.mktime(time.gmtime(0))
+                resource.updated_at = int(time.mktime(time.gmtime(0)))
         return resource
+
+    def parse_date(self, updated_at):
+        return int(parser.parse(updated_at).timestamp())
 
     def process(self):
         with open(self.file, 'r') as csvfile:
