@@ -5,6 +5,6 @@ process:
       enabled: true
       input:
         site: demo
-        location: https://archivesspace.lyrasistechnology.org/files/exports/manifest_ead_xml.csv
+        location: https://archivesspace.lyrasistechnology.org/staff/files/exports/manifest_ead_xml.csv
         username: ${ssm:fad_demo_username}
         password: ${ssm:fad_demo_password~true}

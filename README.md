@@ -54,7 +54,7 @@ sls invoke -f backup -l
 sls invoke -f process -l -p $TDATA
 
 sls invoke -f list -l -d '{ "path": "/dev/demo/resources", "pathParameters": { "site": "demo" }, "queryStringParameters": { "since": 0 } }'
-sls invoke -f find -l -d '{ "path": "/dev/demo/resources/find", "pathParameters": { "site": "demo" }, "queryStringParameters": { "url": "https://archivesspace.lyrasistechnology.org/files/exports/LYRASIS_OCONNOR_200.xml" } }'
+sls invoke -f find -l -d '{ "path": "/dev/demo/resources/find", "pathParameters": { "site": "demo" }, "queryStringParameters": { "url": "https://archivesspace.lyrasistechnology.org/staff/files/exports/LYRASIS_OCONNOR_200.xml" } }'
 
 curl --header "x-api-key: $KEY" https://$id.execute-api.us-west-2.amazonaws.com/dev/demo/resources?since=0 | jq .
 curl --header "x-api-key: $KEY" 'https://$id.execute-api.us-west-2.amazonaws.com/dev/demo/resources/find?url=$URL'
@@ -77,7 +77,7 @@ process:
         # REQUIRED: site code
         site: demo
         # REQUIRED: location (url) to manifest
-        location: https://archivesspace.lyrasistechnology.org/files/exports/manifest_ead_xml.csv
+        location: https://archivesspace.lyrasistechnology.org/staff/files/exports/manifest_ead_xml.csv
         # OPTIONAL: basic auth username
         username: abc
         # OPTIONAL: basic auth password
