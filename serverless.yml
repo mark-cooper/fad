@@ -38,8 +38,6 @@ custom:
 
 plugins:
   - serverless-python-requirements
-
-# --stage prod --region us-east-2
 provider:
   memorySize: 128
   name: aws
