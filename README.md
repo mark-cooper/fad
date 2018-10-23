@@ -43,11 +43,12 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 
 # SERVERLESS
-npm install
-export AWS_PROFILE=default # set aws profile if using env, or use --aws-profile
-export TDATA=./test/demo.json
-
+npm install -g serverless
 sls plugin install -n serverless-python-requirements
+npm install
+
+AWS_PROFILE=default # set aws profile if using env, or use --aws-profile
+TDATA=./test/demo.json
 
 sls deploy
 sls invoke -f backup -l
@@ -61,7 +62,6 @@ curl --header "x-api-key: $KEY" 'https://$id.execute-api.us-west-2.amazonaws.com
 
 sls logs -f process -l
 sls remove
-unset $AWS_PROFILE
 ```
 
 ## Config
